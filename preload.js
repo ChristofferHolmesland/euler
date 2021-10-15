@@ -2,6 +2,8 @@ const axios = require("axios");
 const htmlparser = require("htmlparser");
 const select = require("soupselect").select;
 
+const { saveFile, loadFile } = require("./dataloader");
+
 async function getSiteDOM(url) {
 	const resp = await axios({
 		method: "GET",
@@ -26,7 +28,11 @@ function getProblems(page) {
 		problems[i / 3] = {
 			id: tds[i].children[0].data,
 			title: tds[i+1].children[0].children[0].data,
-			solvedBy: tds[i+2].children[0].children[0].data
+			solvedBy: tds[i+2].children[0].children[0].data,
+			description: undefined,
+			userSolvedTimestamp: undefined,
+			userSolution: undefined,
+			ttl: Date.now()
 		};
 	}
 
@@ -79,12 +85,22 @@ function displayProblemsList(problems) {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
+	const problems = await loadFile();
+
 	const frontPage = await getSiteDOM("https://projecteuler.net/archives");
 
-	const paginationDiv = select(frontPage, "div.pagination");
-	const numPages = paginationDiv[0].children.length - 1;
+	if (problems.length === 0) {
+		const paginationDiv = select(frontPage, "div.pagination");
+		const numPages = paginationDiv[0].children.length;
+		problems.push(...getProblems(frontPage));
 
-	const problems = [...getProblems(frontPage)];
+		for (let i = 2; i < numPages; i++) {
+			const page = await getSiteDOM("https://projecteuler.net/archives;page=" + i);
+			problems.push(...getProblems(page));
+		}
+
+		saveFile(problems);
+	}
 
 	displayProblemsList(problems);
 });
