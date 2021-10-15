@@ -33,6 +33,27 @@ function getProblems(page) {
 	return problems;
 }
 
+async function viewProblemDetails(i, problems) {
+	document.getElementById("problem-id").innerHTML = problems[i].id;
+	document.getElementById("problem-title").innerHTML = problems[i].title;
+	document.getElementById("problem-solvedby").innerHTML = problems[i].solvedBy;
+
+	if (problems[i].description !== undefined) {
+		document.getElementById("problem-description").innerHTML = problems[i].description;
+		return;
+	}
+
+	const resp = await axios({
+		method: "GET",
+		url: "https://projecteuler.net/minimal=" + problems[i].id
+	});
+
+	const problemHtml = resp.data;
+	console.log(problemHtml);
+	document.getElementById("problem-description").innerHTML = problemHtml;
+	problems[i] = problemHtml;
+}
+
 function displayProblemsList(problems) {
 	const problemList = document.getElementById("problem-list");
 
@@ -47,6 +68,7 @@ function displayProblemsList(problems) {
 
 		const listItem = document.createElement("div");
 		listItem.classList.add("problem-list-item");
+		listItem.addEventListener("click", () => viewProblemDetails(i, problems));
 
 		listItem.appendChild(id);
 		listItem.appendChild(title);
