@@ -55,9 +55,9 @@ async function viewProblemDetails(i, problems) {
 	});
 
 	const problemHtml = resp.data;
-	console.log(problemHtml);
 	document.getElementById("problem-description").innerHTML = problemHtml;
-	problems[i] = problemHtml;
+	problems[i].description = problemHtml;
+	saveFile(problems);
 }
 
 function displayProblemsList(problems) {

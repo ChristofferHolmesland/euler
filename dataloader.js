@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const DATA_FILE = path.join(__dirname, "data");
+const BASE64_UNDEFINED = Buffer.from("undefined").toString("base64");
 
 /*
 	File format:
@@ -15,16 +16,16 @@ async function saveFile(problems) {
 	const problemsText = new Array(problems.length);
 
 	for (let i = 0; i < problems.length; i++) {
-		let base64description = "undefined";
+		let base64description = undefined;
 		if (problems[i].description !== undefined) {
-			Buffer.from(problems[i].description).toString("base64")
+			base64description = Buffer.from(problems[i].description).toString("base64")
 		}
 
 		problemsText[i] = [
 			problems[i].id ?? "undefined",
 			problems[i].title ?? "undefined",
 			problems[i].solvedBy ?? "undefined",
-			base64description ?? "undefined",
+			base64description ?? BASE64_UNDEFINED,
 			problems[i].userSolvedTimestamp ?? "undefined",
 			problems[i].userSolution ?? "undefined",
 			problems[i].ttl ?? "undefined"
